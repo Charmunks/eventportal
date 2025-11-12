@@ -2,6 +2,7 @@
 	export let event;
 	export let openEvent;
 	export let onComplete;
+	export let isLoggedIn;
 
 	async function toggleComplete(e) {
 		e.stopPropagation();
@@ -10,15 +11,17 @@
 </script>
 
 <div class="event-card" style="background-color: {event.color};" on:click={() => openEvent(event)} on:keydown={(e) => e.key === 'Enter' && openEvent(event)} role="button" tabindex="0">
-	<button 
-		class="complete-button" 
-		class:completed={event.completed}
-		on:click={toggleComplete}
-		aria-label={event.completed ? "Mark as incomplete" : "Mark as complete"}
-		title={event.completed ? "Mark as incomplete" : "Mark as complete"}
-	>
-		✓
-	</button>
+	{#if isLoggedIn}
+		<button 
+			class="complete-button" 
+			class:completed={event.completed}
+			on:click={toggleComplete}
+			aria-label={event.completed ? "Mark as incomplete" : "Mark as complete"}
+			title={event.completed ? "Mark as incomplete" : "Mark as complete"}
+		>
+			✓
+		</button>
+	{/if}
 	<div class="event-compact">
 		<img src={event.icon} alt="{event.title} icon" class="event-icon" />
 		<h3 style="color: {event.textColor};">{event.title}</h3>

@@ -5,13 +5,14 @@
 	export let category;
 	export let openEvent;
 	export let onComplete;
+	export let isLoggedIn;
 
 	$: filteredEvents = category ? events.filter(e => e.category === category) : events;
 </script>
 
 <div class="events-grid">
 	{#each filteredEvents as event}
-		<EventCard {event} {openEvent} {onComplete} />
+		<EventCard {event} {openEvent} {onComplete} {isLoggedIn} />
 	{/each}
 </div>
 

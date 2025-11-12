@@ -86,20 +86,20 @@
 	<main>
 		<h2 class="section-title">Web development series:</h2>
 		
-		<EventGrid {events} category="Webdev" {openEvent} onComplete={handleComplete} />
+		<EventGrid {events} category="Webdev" {openEvent} onComplete={handleComplete} isLoggedIn={!!data.user} />
 
 		<h2 class="section-title">CAD series:</h2>
 		
-		<EventGrid {events} category="CAD" {openEvent} onComplete={handleComplete} />
+		<EventGrid {events} category="CAD" {openEvent} onComplete={handleComplete} isLoggedIn={!!data.user} />
 
 		<h2 class="section-title">Other Clubs YSWS:</h2>
 		
-		<EventGrid {events} category="Other" {openEvent} onComplete={handleComplete} />
+		<EventGrid {events} category="Other" {openEvent} onComplete={handleComplete} isLoggedIn={!!data.user} />
 
 		{#if hasCompletedEvents}
 			<h2 class="section-title">Completed YSWS:</h2>
 			
-			<EventGrid {events} category="Completed" {openEvent} onComplete={handleComplete} />
+			<EventGrid {events} category="Completed" {openEvent} onComplete={handleComplete} isLoggedIn={!!data.user} />
 		{/if}
 	</main>
 </div>
