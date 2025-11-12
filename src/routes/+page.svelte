@@ -78,6 +78,7 @@
 					<button type="submit" class="nav-button">Logout</button>
 				</form>
 			{:else}
+				<a href="/club-lookup" class="nav-button secondary">Select Club</a>
 				<a href="/login" class="nav-button">Login with Club Dashboard</a>
 			{/if}
 		</div>
@@ -192,6 +193,15 @@
 	.nav-button:hover {
 		background-color: #d62c47;
 		border-color: #d62c47;
+	}
+
+	.nav-button.secondary {
+		background-color: white;
+		color: #ec3750;
+	}
+
+	.nav-button.secondary:hover {
+		background-color: #f9fafc;
 	}
 
 	main {
