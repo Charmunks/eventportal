@@ -18,29 +18,6 @@
 	</header>
 	
 
-	<section class="user-info">
-		<h2 class="section-title">User Information</h2>
-		<div class="info-grid">
-			<div class="info-item">
-				<span class="label">Username:</span>
-				<span class="value">{data.user.username || 'N/A'}</span>
-			</div>
-			<div class="info-item">
-				<span class="label">Name:</span>
-				<span class="value">{data.user.firstName} {data.user.lastName}</span>
-			</div>
-			<div class="info-item">
-				<span class="label">Email:</span>
-				<span class="value">{data.user.email}</span>
-			</div>
-			<div class="info-item">
-				<span class="label">Identity Verified:</span>
-				<span class="value {data.user.identityVerified ? 'verified' : 'not-verified'}">
-					{data.user.identityVerified ? '✓ Verified' : '✗ Not Verified'}
-				</span>
-			</div>
-		</div>
-	</section>
 
 	<section class="clubs-info">
 		<h2 class="section-title">My Clubs ({data.clubs.length})</h2>

@@ -2,13 +2,20 @@
 	import { onMount } from 'svelte';
 	import EventGrid from '$lib/EventGrid.svelte';
 	import EventModal from '$lib/EventModal.svelte';
+	import NewLeaderModal from '$lib/NewLeaderModal.svelte';
 
 	let { data } = $props();
 	let events = $state([]);
 	let selectedEvent = $state(null);
+	let showNewLeaderModal = $state(false);
+	let bannerDismissed = $state(false);
 	let hasCompletedEvents = $derived(events.some(e => e.completed));
 
 	onMount(async () => {
+		const dismissed = localStorage.getItem('newLeaderBannerDismissed');
+		if (dismissed === 'true') {
+			bannerDismissed = true;
+		}
 		await fetchEvents();
 	});
 
@@ -31,6 +38,21 @@
 
 	function closeModal() {
 		selectedEvent = null;
+	}
+
+	function closeNewLeaderModal() {
+		showNewLeaderModal = false;
+	}
+
+	function openNewLeaderModal(e) {
+		e.preventDefault();
+		showNewLeaderModal = true;
+	}
+
+	function dismissBanner(e) {
+		e.stopPropagation();
+		bannerDismissed = true;
+		localStorage.setItem('newLeaderBannerDismissed', 'true');
 	}
 
 	async function handleComplete(eventId, markAsComplete) {
@@ -65,12 +87,12 @@
 </script>
 
 <svelte:head>
-	<title>Clubs Event Portal</title>
+	<title>Club Leaders Portal</title>
 </svelte:head>
 
 <div class="container">
 	<header>
-		<h1 class="title">Clubs Event Portal</h1>
+		<h1 class="title">Club Leaders Portal</h1>
 		<div class="header-buttons">
 			{#if data.user}
 				<a href="/my-club" class="nav-button">My Club</a>
@@ -83,6 +105,19 @@
 			{/if}
 		</div>
 	</header>
+
+	{#if !bannerDismissed}
+		<div class="banner">
+			<button class="banner-content" onclick={openNewLeaderModal}>
+				New leader? Click here
+			</button>
+			<button class="banner-close" onclick={dismissBanner} aria-label="Close banner">
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+				</svg>
+			</button>
+		</div>
+	{/if}
 
 	<main>
 		<h2 class="section-title">Web development series:</h2>
@@ -107,6 +142,10 @@
 
 {#if selectedEvent}
 	<EventModal event={selectedEvent} {closeModal} />
+{/if}
+
+{#if showNewLeaderModal}
+	<NewLeaderModal closeModal={closeNewLeaderModal} />
 {/if}
 
 <style>
@@ -216,5 +255,53 @@
 		font-weight: bold;
 		font-size: 32px;
 		margin: 32px 0 16px 0;
+	}
+
+	.banner {
+		position: relative;
+		display: block;
+		width: 100%;
+		background-color: #ffeaa7;
+		border-radius: 8px;
+		margin-bottom: 24px;
+	}
+
+	.banner-content {
+		width: 100%;
+		color: #1f2d3d;
+		text-align: center;
+		padding: 32px;
+		font-size: 24px;
+		font-weight: 600;
+		text-decoration: none;
+		border: none;
+		background: transparent;
+		border-radius: 8px;
+		transition: background-color 0.2s;
+		cursor: pointer;
+		font-family: 'Phantom Sans', sans-serif;
+	}
+
+	.banner-content:hover {
+		background-color: rgba(0, 0, 0, 0.05);
+	}
+
+	.banner-close {
+		position: absolute;
+		top: 12px;
+		right: 12px;
+		background: none;
+		border: none;
+		cursor: pointer;
+		padding: 4px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 4px;
+		transition: background-color 0.2s;
+	}
+
+	.banner-close:hover {
+		background-color: rgba(0, 0, 0, 0.1);
 	}
 </style>

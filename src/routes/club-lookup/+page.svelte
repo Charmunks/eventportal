@@ -3,12 +3,12 @@
 </script>
 
 <svelte:head>
-	<title>Club Lookup - Clubs Event Portal</title>
+	<title>Club Lookup - Club Leaders Portal</title>
 </svelte:head>
 
 <div class="container">
 	<header>
-		<h1 class="page-title">Clubs Event Portal</h1>
+		<h1 class="page-title">Club Leaders Portal</h1>
 		<div class="header-buttons">
 			<a href="/" class="nav-button">Home</a>
 			{#if data.user}
