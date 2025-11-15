@@ -100,7 +100,7 @@
 					<button type="submit" class="nav-button">Logout</button>
 				</form>
 			{:else}
-				<a href="/club-lookup" class="nav-button secondary">Select Club</a>
+				<a href="/email-login" class="nav-button secondary">Sign in with Email</a>
 				<a href="/login" class="nav-button">Login with Club Dashboard</a>
 			{/if}
 		</div>

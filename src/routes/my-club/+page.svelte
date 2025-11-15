@@ -55,12 +55,6 @@
 								</div>
 							{/if}
 
-							{#if club.balance !== null}
-								<div class="detail">
-									<span class="detail-label">Balance:</span>
-									<span class="detail-value">${club.balance}</span>
-								</div>
-							{/if}
 
 							{#if club.joined_at}
 								<div class="detail">
