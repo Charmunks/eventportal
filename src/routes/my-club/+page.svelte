@@ -1,4 +1,6 @@
 <script>
+	import LevelCard from '$lib/LevelCard.svelte';
+	
 	let { data } = $props();
 </script>
 
@@ -20,7 +22,6 @@
 
 
 	<section class="clubs-info">
-		<h2 class="section-title">My Clubs ({data.clubs.length})</h2>
 
 		{#if data.clubs.length > 0}
 			<div class="clubs-grid">
@@ -35,34 +36,10 @@
 								<span class="club-role {club.role}">{club.role}</span>
 							</div>
 						</div>
+
+						<LevelCard currentLevel={club.level || 'Bronze'} clubShips={club.ships.length || 0} />
 						
-						{#if club.description}
-							<p class="club-description">{club.description}</p>
-						{/if}
-
-						<div class="club-details">
-							{#if club.location}
-								<div class="detail">
-									<span class="detail-label">Location:</span>
-									<span class="detail-value">{club.location}</span>
-								</div>
-							{/if}
-							
-							{#if club.member_count}
-								<div class="detail">
-									<span class="detail-label">Members:</span>
-									<span class="detail-value">{club.member_count}</span>
-								</div>
-							{/if}
-
-
-							{#if club.joined_at}
-								<div class="detail">
-									<span class="detail-label">Joined:</span>
-									<span class="detail-value">{new Date(club.joined_at).toLocaleDateString()}</span>
-								</div>
-							{/if}
-						</div>
+					
 
 						{#if club.ships && club.ships.length > 0}
 							<div class="ships-section">
@@ -200,8 +177,8 @@
 	}
 
 	.clubs-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+		display: flex;
+		flex-direction: column;
 		gap: 24px;
 	}
 
@@ -267,12 +244,6 @@
 	.club-role.member {
 		background-color: #dbeafe;
 		color: #1e40af;
-	}
-
-	.club-description {
-		color: #6b7280;
-		margin-bottom: 16px;
-		line-height: 1.6;
 	}
 
 	.club-details {
