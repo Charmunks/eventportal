@@ -96,6 +96,9 @@
 		<div class="header-buttons">
 			{#if data.user}
 				<a href="/my-club" class="nav-button">My Club</a>
+				{#if data.user.isAdmin}
+					<a href="/admin" class="nav-button">Admin</a>
+				{/if}
 				<form method="POST" action="/logout" style="display: inline;">
 					<button type="submit" class="nav-button">Logout</button>
 				</form>

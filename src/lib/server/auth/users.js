@@ -43,6 +43,7 @@ export async function getUserPublicById(knex, userId) {
 		firstName: u.first_name,
 		lastName: u.last_name,
 		email: u.email,
-		identityVerified: u.identity_verified
+		identityVerified: u.identity_verified,
+		isAdmin: !!u.is_admin
 	};
 }

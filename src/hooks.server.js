@@ -17,7 +17,6 @@ export async function handle({ event, resolve }) {
 
 		if (session && session.expires_at > new Date()) {
 			const now = new Date();
-			const idleExpiry = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
 			if (session.last_activity_at < new Date(now.getTime() - 15 * 60 * 1000)) {
 				await touchSession(knex, session.id, { last_activity_at: now });
