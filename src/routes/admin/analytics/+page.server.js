@@ -41,45 +41,50 @@ export async function load() {
         count: parseInt(c.count)
     }));
 
-    // 3. Fetch Club Ships
-    const clubs = await knex('clubs').select('id', 'name', 'ships');
+    // 3. Fetch Club Ships directly from Airtable
+    const dbClubs = await knex('clubs').select('id', 'name');
     
     let totalShips = 0;
     let allShips = [];
     let shipsByName = {};
 
-    clubs.forEach(club => {
-        if (club.ships) {
-            // clubs.ships is JSONB, so knex/pg might return it as object already
-            // but in migration it was t.jsonb('ships').defaultTo('[]')
-            // let's ensure it's an array
-            let clubShips = club.ships;
-            if (typeof clubShips === 'string') {
-                try {
-                    clubShips = JSON.parse(clubShips);
-                } catch (e) {
-                    clubShips = [];
-                }
-            }
-            
-            if (Array.isArray(clubShips)) {
-                totalShips += clubShips.length;
-                clubShips.forEach(ship => {
-                    allShips.push({
-                        name: ship.name,
-                        codeUrl: ship.codeUrl,
-                        memberName: ship.memberName,
-                        // Add safe club info
-                        clubName: club.name,
-                        clubId: club.id
-                    });
+    try {
+  
+        const shipRecords = await base('Club Ships')
+            .select({
+                fields: ['YSWS–Name (from Unified YSWS Database)', 'code_url', 'member_name', 'club_name (from Clubs)']
+            })
+            .all();
 
-                    const shipName = ship.name || 'Unnamed Ship';
-                    shipsByName[shipName] = (shipsByName[shipName] || 0) + 1;
-                });
+        // Create a map of club name -> club id for quick lookup
+        const clubNameMap = new Map(dbClubs.map(c => [c.name, c.id]));
+
+        shipRecords.forEach(record => {
+            const clubNames = record.get('club_name (from Clubs)');
+            // clubNames is usually an array of strings in Airtable linked records
+            const clubName = Array.isArray(clubNames) ? clubNames[0] : clubNames;
+            
+            // Only count ships that belong to clubs in our DB
+            if (clubName && clubNameMap.has(clubName)) {
+                const ship = {
+                    name: record.get('YSWS–Name (from Unified YSWS Database)') || 'Unnamed Ship',
+                    codeUrl: record.get('code_url') || null,
+                    memberName: record.get('member_name') || null,
+                    clubName: clubName,
+                    clubId: clubNameMap.get(clubName)
+                };
+
+                allShips.push(ship);
+                totalShips++;
+                
+                const shipName = ship.name;
+                shipsByName[shipName] = (shipsByName[shipName] || 0) + 1;
             }
-        }
-    });
+        });
+
+    } catch (error) {
+        console.error('Error fetching ships from Airtable:', error);
+    }
 
     // Sort top shipped projects
     const topShips = Object.entries(shipsByName)
@@ -87,17 +92,15 @@ export async function load() {
         .sort((a, b) => b.count - a.count)
         .slice(0, 10); // Top 10
 
-    // Recent ships (just taking the first 20 from the aggregated list effectively)
-    // Note: We don't have a date on the ship object itself in the JSON structure derived from `sync-clubs.js`
-    // So we can't truly sort by "recent" unless we rely on array order which might be arbitrary or sync order.
-    // We will just display a sample.
+    // Recent ships (Airtable returns roughly insertion order, so first page is usually oldest or unsorted unless specified)
+    // We didn't sort by date, so this is just a sample.
     const recentShipsSample = allShips.slice(0, 20);
 
     return {
         eventStats,
         shipStats: {
             totalShips,
-            avgShipsPerClub: clubs.length > 0 ? (totalShips / clubs.length).toFixed(1) : 0,
+            avgShipsPerClub: dbClubs.length > 0 ? (totalShips / dbClubs.length).toFixed(1) : 0,
             topShips,
             sampleShips: recentShipsSample
         }

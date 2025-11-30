@@ -11,23 +11,17 @@ export function getAirtableBase() {
 	return new Airtable({ apiKey: env.AIRTABLE_API_KEY }).base(env.AIRTABLE_BASE_ID);
 }
 
-export async function checkLeaderEmail(email) {
-	const base = getAirtableBase();
-	
-	try {
-		const records = await base('Leaders')
-			.select({
-				filterByFormula: `{email} = '${email.replace(/'/g, "\\'")}'`,
-				maxRecords: 1
-			})
-			.firstPage();
-
-		return records.length > 0;
-	} catch (error) {
-		console.error('Error checking leader email:', error);
-		throw new Error("Failed to check leader email");
+export function getYSWSBase(baseID) {
+	if (!env.AIRTABLE_API_KEY) {
+		throw new Error("Missing AIRTABLE_API_KEY");
 	}
+	if (!baseID) {
+		throw new Error("Missing baseID");
+	}
+	return new Airtable({ apiKey: env.AIRTABLE_API_KEY }).base(baseID);
 }
+
+export { checkLeaderEmail } from './clubapi.js';
 
 export async function getClubsForLeader(email) {
 	const base = getAirtableBase();

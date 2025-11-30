@@ -1,10 +1,6 @@
-import { env } from '$env/dynamic/private';
-import Airtable from 'airtable';
-import { getClubsForLeader } from './airtable.js';
+import { getClubLevel, getClubShips, getClubsForLeaderEmail } from './clubapi.js';
 
-export async function syncClubDataFromAirtable(knex, clubName) {
-	const base = new Airtable({ apiKey: env.AIRTABLE_API_KEY }).base(env.AIRTABLE_BASE_ID);
-	
+export async function syncClubDataFromApi(knex, clubName) {
 	const club = await knex('clubs').where({ name: clubName }).first();
 	if (!club) {
 		console.error(`Club not found: ${clubName}`);
@@ -21,39 +17,10 @@ export async function syncClubDataFromAirtable(knex, clubName) {
 		};
 	}
 
-	let level = null;
-	let ships = [];
-
-	try {
-		const clubRecords = await base('Clubs')
-			.select({
-				filterByFormula: `{club_name} = '${clubName.replace(/'/g, "\\'")}'`,
-				maxRecords: 1
-			})
-			.firstPage();
-
-		if (clubRecords.length > 0) {
-			level = clubRecords[0].get('level') || null;
-		}
-	} catch (error) {
-		console.error(`Error fetching level for club ${clubName}:`, error);
-	}
-
-	try {
-		const shipRecords = await base('Club Ships')
-			.select({
-				filterByFormula: `{club_name (from Clubs)} = '${clubName.replace(/'/g, "\\'")}'`
-			})
-			.all();
-
-		ships = shipRecords.map((record) => ({
-			name: record.get('YSWS–Name (from Unified YSWS Database)') || 'Unnamed Ship',
-			codeUrl: record.get('code_url') || null,
-			memberName: record.get('member_name') || null
-		}));
-	} catch (error) {
-		console.error(`Error fetching ships for club ${clubName}:`, error);
-	}
+	const [level, ships] = await Promise.all([
+		getClubLevel(clubName),
+		getClubShips(clubName)
+	]);
 
 	await knex('clubs')
 		.where({ id: club.id })
@@ -79,7 +46,7 @@ export async function syncAllUserClubs(knex, userId) {
 
 	const syncedClubs = await Promise.all(
 		dbClubs.map(async (club) => {
-			const syncedData = await syncClubDataFromAirtable(knex, club.name);
+			const syncedData = await syncClubDataFromApi(knex, club.name);
 			return {
 				...club,
 				level: syncedData?.level || club.level,
@@ -92,11 +59,10 @@ export async function syncAllUserClubs(knex, userId) {
 }
 
 export async function syncEmailLeaderClubs(knex, email) {
-	const base = new Airtable({ apiKey: env.AIRTABLE_API_KEY }).base(env.AIRTABLE_BASE_ID);
-	const airtableClubs = await getClubsForLeader(email);
+	const apiClubs = await getClubsForLeaderEmail(email);
 
 	const syncedClubs = await Promise.all(
-		airtableClubs.map(async (club) => {
+		apiClubs.map(async (club) => {
 			let dbClub = await knex('clubs')
 				.where({ name: club.name })
 				.first();
@@ -105,7 +71,7 @@ export async function syncEmailLeaderClubs(knex, email) {
 				const [insertedClub] = await knex('clubs')
 					.insert({
 						id: knex.raw('gen_random_uuid()'),
-						provider_club_id: club.id.hashCode ? club.id.hashCode() : Math.floor(Math.random() * 1000000),
+						provider_club_id: typeof club.id === 'string' ? club.id.hashCode?.() || Math.floor(Math.random() * 1000000) : club.id,
 						name: club.name,
 						description: club.description,
 						location: club.location,
@@ -127,22 +93,7 @@ export async function syncEmailLeaderClubs(knex, email) {
 				};
 			}
 
-			let ships = [];
-			try {
-				const shipRecords = await base('Club Ships')
-					.select({
-						filterByFormula: `{club_name (from Clubs)} = '${club.name.replace(/'/g, "\\'")}'`
-					})
-					.all();
-
-				ships = shipRecords.map((record) => ({
-					name: record.get('YSWS–Name (from Unified YSWS Database)') || 'Unnamed Ship',
-					codeUrl: record.get('code_url') || null,
-					memberName: record.get('member_name') || null
-				}));
-			} catch (error) {
-				console.error(`Error fetching ships for club ${club.name}:`, error);
-			}
+			const ships = await getClubShips(club.name);
 
 			await knex('clubs')
 				.where({ id: dbClub.id })
