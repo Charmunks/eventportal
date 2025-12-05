@@ -41,9 +41,23 @@
 						
 					
 
+						{#if club.members}
+							<div class="members-section">
+								<h4 class="members-title">Members</h4>
+								<div class="members-list">
+									<div class="member-item">
+										<span class="member-name">{club.members}</span>
+									</div>
+								</div>
+								{#if club.joinCode}
+									<h4 class="ships-title">Invite members using <a href="https://hack.club/join/{club.joinCode}" target="_blank" rel="noopener noreferrer">hack.club/join/{club.joinCode}</a></h4>
+								{/if}
+							</div>
+						{/if}
+						<div class="ships-section">
+						<h4 class="ships-title">Ships ({club.ships.length})</h4>
 						{#if club.ships && club.ships.length > 0}
-							<div class="ships-section">
-								<h4 class="ships-title">Ships ({club.ships.length})</h4>
+
 								<div class="ships-list">
 									{#each club.ships as ship}
 										<div class="ship-item">
@@ -57,10 +71,11 @@
 									{/each}
 								</div>
 								<h4 class="ships-title">Fill out <a href="https://forms.hackclub.com/club-ships">this</a> form to link shipped projects to your club!</h4>
-							</div>
 						{:else}
 							<h4 class="ships-title">Fill out <a href="https://forms.hackclub.com/club-ships">this</a> form to link shipped projects to your club!</h4>
 						{/if}
+						</div>
+
 					</div>
 				{/each}
 			</div>
@@ -287,6 +302,42 @@
 		color: #6b7280;
 		font-size: 18px;
 		margin: 0;
+	}
+
+	.members-section {
+		margin-top: 16px;
+		padding-top: 16px;
+		border-top: 1px solid #e5e7eb;
+	}
+
+	.members-title {
+		font-size: 16px;
+		font-weight: 600;
+		color: #1f2d3d;
+		margin: 0 0 12px 0;
+	}
+
+	.members-list {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		margin-bottom:8px;
+	}
+
+	.member-item {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 8px 12px;
+		background: #f9fafc;
+		border-radius: 6px;
+		border: 1px solid #e5e7eb;
+	}
+
+	.member-name {
+		font-size: 14px;
+		color: #1f2d3d;
+		font-weight: 500;
 	}
 
 	.ships-section {

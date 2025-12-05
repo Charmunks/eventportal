@@ -104,6 +104,17 @@ export async function getClubShips(clubName) {
 	}
 }
 
+export async function getClubMembers(clubName) {
+	try {
+		const data = await fetchClubApi('/members', { club_name: clubName });
+		console.log('[ClubAPI] getClubMembers raw data:', JSON.stringify(data, null, 2));
+		return data.members || null;
+	} catch (error) {
+		console.error(`Error fetching members for club ${clubName}:`, error);
+		return null;
+	}
+}
+
 export async function getClubsForLeaderEmail(email) {
 	console.log('[ClubAPI] getClubsForLeaderEmail called with:', email);
 	try {
@@ -132,7 +143,8 @@ export async function getClubsForLeaderEmail(email) {
 					level: level || clubInfo?.fields?.level || clubInfo?.level || null,
 					description: null,
 					location: clubInfo?.fields?.venue_address_country || clubInfo?.venue_address_country || null,
-					role: 'leader'
+					role: 'leader',
+					joinCode: clubInfo?.fields?.['Join Code'] || clubInfo?.['Join Code'] || null
 				};
 			})
 		);
