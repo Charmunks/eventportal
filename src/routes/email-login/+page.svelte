@@ -74,6 +74,7 @@
 	<title>Email Login - Club Leaders Portal</title>
 </svelte:head>
 
+
 <div class="container">
 	<div class="login-card">
 		<h1 class="title">Leader Portal Login</h1>
@@ -142,7 +143,6 @@
 		{/if}
 	</div>
 </div>
-
 <style>
 	@font-face {
 		font-family: 'Phantom Sans';
@@ -168,7 +168,6 @@
 
 	:global(body) {
 		font-family: 'Phantom Sans', sans-serif;
-		background-color: #ffffff;
 		color: #1f2d3d;
 		margin: 0;
 		padding: 0;
@@ -177,6 +176,7 @@
 	.container {
 		min-height: 100vh;
 		display: flex;
+		background: url("/orpheus.jpg") center/cover;
 		align-items: center;
 		justify-content: center;
 		padding: 16px;
